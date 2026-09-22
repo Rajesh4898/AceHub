@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Session {{ session.session_code }} - AssistHub{% endblock %}
+
+{% block head %}
+<meta name="session-config"
+      data-code="{{ session.session_code }}"
+      data-role="{{ role }}"
+      data-user-id="{{ current_user.id }}"
+      data-name="{{ current_user.name }}"
+      data-ice-servers='{{ ice_servers | tojson }}'>
+<style>body { background: var(--bg); } .main { max-width: 1200px; }</style>
+{% endblock %}
+
+{% block content %}
+<header class="session-bar">
+  <div class="session-id">
+    <span class="session-label">Session code</span>
+    <span class="session-code mono" id="sessionCode">{{ session.session_code }}</span>
+    <button class="btn btn-sm btn-ghost" id="copyBtn" type="button">Copy</button>
+  </div>
+  <div class="session-meta">
+    <span class="badge {{ 'badge-active' if session.is_active else 'badge-ended' }}" id="statusPill">{{ "Active" if session.is_active else "Ended" }}</span>
+    <span class="conn-chip" id="connChip">
+      <span class="dot"></span>
+      <span id="connText">Connecting…</span>
+    </span>
+    {% if session.is_active %}
+      <form method="post" action="{{ url_for('sessions.end', code=session.session_code) }}"
+            class="inline" onsubmit="return confirm('End this session for everyone?');">
+        <button class="btn btn-danger btn-sm" type="submit">End Session</button>
+      </form>
+    {% endif %}
+  </div>
+</header>
+
+<div class="session-grid">
+  <!-- Screen sharing -->
+  <section class="panel screen-panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Screen sharing</h2>
+      <span class="badge" id="shareState">Not sharing</span>
+    </div>
+
+    <div class="video-stage">
+      {% if is_host %}
+        <video id="remoteVideo" autoplay playsinline muted></video>
+        <div class="video-placeholder" id="videoPlaceholderHost">
+          <span>🖥️</span>
+          <p>Waiting for the customer to share their screen…</p>
+          <p class="hint">Tip: click "Request Screen" to ask them to start sharing.</p>
+        </div>
+      {% else %}
+        <video id="localVideo" autoplay playsinline muted></video>
+        <div class="video-placeholder" id="videoPlaceholderGuest">
+          <span>🖥️</span>
+          <p>You are not sharing your screen yet.</p>
+          <p class="hint">Everything is streamed over a secure peer-to-peer connection.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="screen-controls">
+      {% if is_host %}
+        <button class="btn btn-primary" id="requestShareBtn" type="button">Request Screen</button>
+        <a class="btn btn-secondary" href="{{ url_for('sessions.session_page', code=session.session_code) }}">Refresh</a>
+      {% else %}
+        <button class="btn btn-primary" id="startShareBtn" type="button">Start Sharing</button>
+        <button class="btn btn-danger" id="stopShareBtn" type="button" disabled>Stop Sharing</button>
+      {% endif %}
+    </div>
+    <p class="screen-note" id="screenNote"></p>
+  </section>
+
+  <!-- Chat + Files -->
+  <section class="panel side-panel">
+    <div class="tabs">
+      <button class="tab-btn active" id="tabChat" type="button">Chat</button>
+      <button class="tab-btn" id="tabFiles" type="button">Files</button>
+    </div>
+
+    <!-- Chat -->
+    <div class="tab-pane active" id="paneChat">
+      <ul class="chat-log" id="chatLog">
+        {% for m in recent_msgs %}
+          <li class="chat-msg {{ 'me' if m.role == role else 'them' }}">
+            <span class="chat-meta">{{ m.sender }} &middot; {{ m.time }}</span>
+            <span class="chat-text">{{ m.text }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <form class="chat-form" id="chatForm">
+        <input type="text" id="chatInput" placeholder="Type a message…" maxlength="1000" autocomplete="off">
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+    </div>
+
+    <!-- Files -->
+    <div class="tab-pane" id="paneFiles">
+      <form class="upload-form" id="uploadForm">
+        <label class="upload-label">
+          <span class="btn btn-secondary" role="button">Choose file</span>
+          <input type="file" id="fileInput" hidden>
+        </label>
+        <button class="btn btn-primary" id="sendFileBtn" type="submit" disabled>Send File</button>
+      </form>
+      <p class="upload-note" id="uploadNote">Max 25 MB &middot; images, PDFs, docs, archives, audio &amp; video</p>
+      <ul class="file-list" id="fileList">
+        {% for f in files %}
+          <li class="file-item" id="file-{{ f.id }}">
+            <span class="file-name">{{ f.original_name }}</span>
+            <span class="file-meta">{{ f.uploader.name }} &middot; {{ "%.1f MB"|format(f.size / (1024*1024)) if f.size > 1048576 else "%.0f KB"|format(f.size / 1024) }}</span>
+            <a class="btn btn-sm btn-primary" href="{{ url_for('sessions.download', code=session.session_code, file_id=f.id) }}">Download</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+</div>
+
+<!-- Share request modal (customer side) -->
+<div class="modal" id="shareModal" hidden>
+  <div class="modal-box">
+    <h3 id="shareModalText">The technician is requesting your screen</h3>
+    <p>Do you want to share your screen with the technician? You can stop at any time.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="approveShareBtn" type="button">Start Sharing</button>
+      <button class="btn btn-secondary" id="declineShareBtn" type="button">Not now</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vendor/socket.io.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/session.js') }}"></script>
+{% endblock %}

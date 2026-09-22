@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}AssistHub - Remote Support &amp; Screen Sharing{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-badge">Remote support, made simple</div>
+  <h1 class="hero-title">Help anyone, <span class="grad">anywhere</span> — instantly.</h1>
+  <p class="hero-sub">
+    Start a secure remote support session in seconds. Share screens in real time,
+    chat live, and exchange files — no complex setup required.
+  </p>
+  <div class="hero-actions">
+    <form method="post" action="{{ url_for('sessions.create') }}">
+      <button class="btn btn-primary btn-lg" type="submit">Start Remote Support</button>
+    </form>
+    <a class="btn btn-secondary btn-lg" href="{{ url_for('main.join') }}">Join Session</a>
+  </div>
+  <p class="hero-note">Free &middot; No installation &middot; Works in your browser</p>
+</section>
+
+<section class="features">
+  <div class="feature-card">
+    <div class="feature-icon">🖥️</div>
+    <h3>Screen Sharing</h3>
+    <p>Share your screen with the technician in real time, with your explicit permission.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">💬</div>
+    <h3>Live Chat</h3>
+    <p>Communicate instantly with a built-in real-time chat during your session.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">📁</div>
+    <h3>File Sharing</h3>
+    <p>Send and receive files during a session, securely and with download links.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🔒</div>
+    <h3>Secure Sessions</h3>
+    <p>Every session needs a 6-digit code and your consent before anything is shared.</p>
+  </div>
+</section>
+
+<section class="steps">
+  <h2 class="steps-title">How it works</h2>
+  <div class="steps-grid">
+    <div class="step">
+      <span class="step-num">1</span>
+      <h4>Create a session</h4>
+      <p>Get a unique 6-digit code to share with your customer.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <h4>Customer joins</h4>
+      <p>They enter the code and connect to you in one click.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">3</span>
+      <h4>Share &amp; help</h4>
+      <p>Screen share, chat, and exchange files until the problem is solved.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

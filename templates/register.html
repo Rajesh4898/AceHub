@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Sign up - AssistHub{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <h1 class="auth-title">Create your account</h1>
+  <p class="auth-sub">It only takes a minute to get started.</p>
+  <form method="post" class="form">
+    <label class="field">
+      <span>Full name</span>
+      <input type="text" name="name" value="{{ name or '' }}" required autofocus autocomplete="name">
+    </label>
+    <label class="field">
+      <span>Email</span>
+      <input type="email" name="email" value="{{ email or '' }}" required autocomplete="email">
+    </label>
+    <label class="field">
+      <span>Password</span>
+      <input type="password" name="password" required minlength="8" autocomplete="new-password">
+    </label>
+    <label class="field">
+      <span>Confirm password</span>
+      <input type="password" name="confirm" required minlength="8" autocomplete="new-password">
+    </label>
+    <button class="btn btn-primary btn-block" type="submit">Create account</button>
+  </form>
+  <p class="auth-alt">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+</div>
+{% endblock %}

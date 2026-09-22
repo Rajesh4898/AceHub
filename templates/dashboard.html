@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - AssistHub{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Hi, {{ current_user.name }}</h1>
+    <p class="page-sub">
+      {% if active_count %}
+        You have {{ active_count }} active session{{ 's' if active_count != 1 }}.
+      {% else %}
+        No active sessions right now.
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<div class="dash-grid">
+  <div class="panel">
+    <div class="panel-icon">🛠️</div>
+    <h3>Start Remote Support</h3>
+    <p>Create a new session and get a 6-digit code to share with your customer.</p>
+    <form method="post" action="{{ url_for('sessions.create') }}">
+      <button class="btn btn-primary btn-block" type="submit">Create Session</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <div class="panel-icon">🔗</div>
+    <h3>Join a Session</h3>
+    <p>Have a code from a technician? Join their session and get help.</p>
+    <form method="post" action="{{ url_for('sessions.join') }}" class="inline-code-form">
+      <input class="code-input" type="text" name="code" inputmode="numeric" pattern="[0-9]{6}"
+             maxlength="6" placeholder="000000" required autocomplete="off">
+      <button class="btn btn-primary" type="submit">Join</button>
+    </form>
+  </div>
+</div>
+
+<section class="panel table-panel">
+  <div class="table-head">
+    <h3>Recent sessions</h3>
+    <span class="muted">last 30 days</span>
+  </div>
+  {% if recent_sessions %}
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Role</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in recent_sessions %}
+            <tr>
+              <td class="mono">{{ s.session_code }}</td>
+              <td>{{ "Technician" if s.host_id == current_user.id else "Customer" }}</td>
+              <td>{{ s.created_at.strftime("%b %d, %H:%M") }}</td>
+              <td>
+                <span class="badge badge-{{ s.status }}">{{ "Active" if s.is_active else "Ended" }}</span>
+              </td>
+              <td>
+                {% if s.is_active %}
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('sessions.session_page', code=s.session_code) }}">Open</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty-state">No sessions yet. Create one to get started.</p>
+  {% endif %}
+</section>
+{% endblock %}

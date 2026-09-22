@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Join a session - AssistHub{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <h1 class="auth-title">Join a session</h1>
+  <p class="auth-sub">Enter the 6-digit code provided by the technician.</p>
+  <form method="post" action="{{ url_for('sessions.join') }}" class="form">
+    <label class="field">
+      <span>Session code</span>
+      <input class="code-input" type="text" name="code" inputmode="numeric" pattern="[0-9]{6}"
+             maxlength="6" placeholder="000000" required autofocus autocomplete="off">
+    </label>
+    <button class="btn btn-primary btn-block" type="submit">Join</button>
+  </form>
+  <p class="auth-alt"><a href="{{ url_for('main.dashboard') }}">&larr; Back to dashboard</a></p>
+</div>
+{% endblock %}
