@@ -1,4 +1,4 @@
-# AssistHub - Remote Support & Screen Sharing Platform
+# AceHub - Remote Support & Screen Sharing Platform
 
 A simple, modern web app for remote support inspired by tools like Zoho Assist.
 Technicians create a session, share a 6-digit code, and the customer joins to
@@ -66,7 +66,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Then open **http://localhost:5002** in your browser.
+Then open **http://localhost:5004** in your browser.
 
 > Port 5000/5001 are often taken by other local apps. AssistHub deliberately uses
 > **5002**. To change it, edit `PORT` at the bottom of `app.py`.
